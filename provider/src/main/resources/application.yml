@@ -1,0 +1,33 @@
+server:
+  port: 9002
+spring:
+  application:
+    name: provider
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false
+    username: root
+    password: root
+  data:
+    redis:
+      database: 0   # redis数据库索引（默认为0），我们使用索引为其他(0-15)的数据库，避免和其他数据库冲突
+      host: 127.0.0.1
+      port: 6379
+      repositories:
+        enable: false
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    #必须配置这个才会确认回调
+    publisher-confirm-type: correlated
+    #消息投递到队列失败是否回调
+    publisher-returns: true
+  mybatis-plus:
+    type-aliases-package: com.example.entity
+    configuration:
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+      map-underscore-to-camel-case: true
+    mapper-locations: classpath*:mapper/*.xml

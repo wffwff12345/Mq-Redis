@@ -1,0 +1,37 @@
+server:
+  port: 9001
+spring:
+  application:
+    name: consumer
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false
+    username: root
+    password: root
+  data:
+    redis:
+      database: 0   # redis数据库索引（默认为0），我们使用索引为其他(0-15)的数据库，避免和其他数据库冲突
+      host: 127.0.0.1
+      port: 6379
+      repositories:
+        enable: false
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    #消费端配置
+    listener:
+      simple:
+        # 同一个队列启动几个消费者
+        concurrency: 5
+        # 消费者最大数量
+        max-concurrency: 10
+        # 限流 多数据量同时只能过来一条
+        prefetch: 1
+        #手动确认
+        acknowledge-mode: manual
+        default-requeue-rejected: true
+    template:
+      mandatory: true
