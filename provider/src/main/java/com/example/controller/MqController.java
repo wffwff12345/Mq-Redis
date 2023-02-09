@@ -14,7 +14,7 @@ public class MqController {
     ProviderMqService  service;
     @GetMapping("/sendMessage")
     public String SendMessage(String message) throws JsonProcessingException {
-        service.SendMessage(message);
+        //ervice.SendMessage(message);
         return "生产者发送消息";
     }
 }

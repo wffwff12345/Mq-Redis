@@ -1,6 +1,8 @@
 package com.example.service.serviceImpl;
 
-import com.example.config.RabbitmqConfig;
+
+import com.example.configs.RabbitMqConfig;
+import com.example.dto.RequestDto;
 import com.example.service.ConfirmCallbackService;
 import com.example.service.ProviderMqService;
 import com.example.service.ReturnCallbackService;
@@ -31,7 +33,7 @@ public class ProviderMqServiceImpl implements ProviderMqService {
 
     }
     @Override
-    public void SendMessage(String message) throws JsonProcessingException {
+    public void SendMessage(RequestDto dto) throws JsonProcessingException {
         /**
          * 确保消息发送失败后可以重新返回到队列中
          * 注意：yml需要配置 publisher-returns: true
@@ -55,7 +57,39 @@ public class ProviderMqServiceImpl implements ProviderMqService {
          * 2、routingKey
          * 3、消息内容
          */
-        rabbitTemplate.convertAndSend(RabbitmqConfig.EXCHANGE_TOPICS_INFORM, "inform.email",message,new CorrelationData(UUID.randomUUID().toString()));
+        ObjectMapper mapper = new ObjectMapper();
+        rabbitTemplate.convertAndSend(RabbitMqConfig.ORDER_EXCHANGE,RabbitMqConfig.ORDER_ROUTING_KEY,mapper.writeValueAsString(dto),new CorrelationData(UUID.randomUUID().toString()));
+
+    }
+
+    @Override
+    public void Send(RequestDto dto) throws JsonProcessingException {
+        /**
+         * 确保消息发送失败后可以重新返回到队列中
+         * 注意：yml需要配置 publisher-returns: true
+         */
+        rabbitTemplate.setMandatory(true);
+
+        /**
+         * 消费者确认收到消息后，手动ack回执回调处理
+         */
+        rabbitTemplate.setConfirmCallback(confirmCallbackService);
+
+        /**
+         * 消息投递到队列失败回调处理
+         */
+        rabbitTemplate.setReturnCallback(returnCallbackService);
+
+        /**
+         * 发送消息
+         * 参数：
+         * 1、交换机名称
+         * 2、routingKey
+         * 3、消息内容
+         */
+        ObjectMapper mapper = new ObjectMapper();
+
+        rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE_TOPICS_INFORM,"inform.email",mapper.writeValueAsString(dto),new CorrelationData(UUID.randomUUID().toString()));
 
     }
 

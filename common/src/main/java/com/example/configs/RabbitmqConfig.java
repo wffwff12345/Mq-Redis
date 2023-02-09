@@ -1,8 +1,11 @@
-package com.example.config;
+package com.example.configs;
 
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.amqp.support.converter.SerializerMessageConverter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -19,15 +22,31 @@ public class RabbitmqConfig {
 
     public static final String QUEUE_INFORM_EMAIL = "queue_inform_email";
     public static final String QUEUE_INFORM_SMS = "queue_inform_sms";
-    public static final String EXCHANGE_TOPICS_INFORM="exchange_topics_inform";
-    public static final String ROUTINGKEY_EMAIL="inform.#.email.#";
-    public static final String ROUTINGKEY_SMS="inform.#.sms.#";
+    public static final String EXCHANGE_DIRECT_INFORM="exchange_direct_inform";
+    public static final String ROUTINGKEY_EMAIL="inform_email";
+    public static final String ROUTINGKEY_SMS="inform_sms";
 
+
+    @Bean(name = "rabbitListenerContainerFactory")
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setAcknowledgeMode(AcknowledgeMode.MANUAL);
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(new Jackson2JsonMessageConverter());
+        //消费数量
+        factory.setPrefetchCount(50);
+        return factory;
+    }
+
+    @Bean
+    public MessageConverter messageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
     //声明交换机
-    @Bean(EXCHANGE_TOPICS_INFORM)
-    public Exchange EXCHANGE_TOPICS_INFORM(){
+    @Bean(EXCHANGE_DIRECT_INFORM)
+    public Exchange EXCHANGE_DIRECT_INFORM(){
         //durable(true) 持久化，mq重启之后交换机还在
-        return ExchangeBuilder.topicExchange(EXCHANGE_TOPICS_INFORM).durable(true).build();
+        return ExchangeBuilder.directExchange(EXCHANGE_DIRECT_INFORM).durable(true).build();
     }
 
     //声明QUEUE_INFORM_EMAIL队列
@@ -44,13 +63,13 @@ public class RabbitmqConfig {
     //ROUTINGKEY_EMAIL队列绑定交换机，指定routingKey
     @Bean
     public Binding BINDING_QUEUE_INFORM_EMAIL(@Qualifier(QUEUE_INFORM_EMAIL) Queue queue,
-                                              @Qualifier(EXCHANGE_TOPICS_INFORM) Exchange exchange){
+                                              @Qualifier(EXCHANGE_DIRECT_INFORM) Exchange exchange){
         return BindingBuilder.bind(queue).to(exchange).with(ROUTINGKEY_EMAIL).noargs();
     }
     //ROUTINGKEY_SMS队列绑定交换机，指定routingKey
     @Bean
     public Binding BINDING_ROUTINGKEY_SMS(@Qualifier(QUEUE_INFORM_SMS) Queue queue,
-                                          @Qualifier(EXCHANGE_TOPICS_INFORM) Exchange exchange){
+                                          @Qualifier(EXCHANGE_DIRECT_INFORM) Exchange exchange){
         return BindingBuilder.bind(queue).to(exchange).with(ROUTINGKEY_SMS).noargs();
     }
     @Bean

@@ -9,4 +9,5 @@ public interface StockService extends IService<Stock> {
 
     List<Stock> getAll();
 
+    boolean decrByName(String stockName);
 }

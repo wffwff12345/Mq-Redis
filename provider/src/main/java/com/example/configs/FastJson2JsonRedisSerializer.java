@@ -1,4 +1,4 @@
-package com.example.config;
+package com.example.configs;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.ParserConfig;
