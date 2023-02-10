@@ -1,4 +1,4 @@
-package com.example.configs;
+package com.example.config;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
@@ -50,6 +50,12 @@ public class RabbitMqConfig {
     public static final String EXCHANGE_TOPICS_INFORM="exchange_topics_inform";
     public static final String ROUTINGKEY_EMAIL="inform.#.email.#";
     public static final String ROUTINGKEY_SMS="inform.#.sms.#";
+
+
+
+    public static final String CANAL_EXCHANGE="CANAL_EXCHANGE";
+    public static final String CANAL_QUEUE="CANAL_QUEUE";
+    public static final String CANAL_ROUTING_KEY="CANAL_ROUTING_KEY";
     /**
      *
      * @param connectionFactory
@@ -125,6 +131,32 @@ public class RabbitMqConfig {
         return BindingBuilder.bind(getOrderQueue()).to(getOrderExchange()).with(ORDER_ROUTING_KEY).noargs();
     }
 
+    /**
+     * 创建canal队列
+     * @return
+     */
+    @Bean
+    public Queue getCanalQueue() {
+        return new Queue(CANAL_QUEUE);
+    }
+
+    /**
+     * 创建canal交换机
+     * @return
+     */
+    @Bean
+    public Exchange getCanalExchange() {
+        return ExchangeBuilder.directExchange(CANAL_EXCHANGE).durable(true).build();
+    }
+
+    /**
+     * canal队列与canal交换机进行绑定
+     * @return
+     */
+    @Bean
+    public Binding bindCanal() {
+        return BindingBuilder.bind(getCanalQueue()).to(getCanalExchange()).with(CANAL_ROUTING_KEY).noargs();
+    }
 
     //声明交换机
     @Bean(EXCHANGE_TOPICS_INFORM)

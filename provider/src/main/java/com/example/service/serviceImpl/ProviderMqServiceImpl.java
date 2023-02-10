@@ -1,7 +1,7 @@
 package com.example.service.serviceImpl;
 
 
-import com.example.configs.RabbitMqConfig;
+import com.example.config.RabbitMqConfig;
 import com.example.dto.RequestDto;
 import com.example.service.ConfirmCallbackService;
 import com.example.service.ProviderMqService;

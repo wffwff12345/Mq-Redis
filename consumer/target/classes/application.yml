@@ -21,6 +21,7 @@ spring:
     username: guest
     password: guest
     virtual-host: /
+
     #消费端配置
     listener:
       simple:
@@ -35,3 +36,35 @@ spring:
         default-requeue-rejected: true
     template:
       mandatory: true
+
+
+rabbitmq:
+  addresses: amqp://localhost:5672
+  username: canalConsumer
+  password: canalConsumer
+  cloud:
+    stream:
+      #设置默认的binders
+      default-binder: rabbit
+      binders:
+        rabbit:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                # 连接到指定Vhost
+                virtual-host: /
+      bindings:
+        canal_data_input:
+          binder: rabbit
+          destination: cannal-exchange
+          group: canal_data_input_group
+      rabbit:
+        bindings:
+          canal_data_input:
+            consumer:
+              exchangeType: direct
+              binding-routing-key: cannal-exchange-routing
+              autoBindDlq: true
+              republishToDlq: true
+              deadLetterExchange: CANAL_DATA_DLX

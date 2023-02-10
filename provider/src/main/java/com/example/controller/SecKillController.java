@@ -44,7 +44,7 @@ public class SecKillController {
 
   @PostMapping("/kill")
   @LimitNumber(value = 1)
-  @AccessLimit(seconds = 1, maxCount = 20)
+  @AccessLimit(seconds = 1, maxCount = 800)
   public String secKill(
       @RequestParam(value = "userId") Integer userId,
       @RequestParam(value = "stockName") String stockName)
@@ -59,7 +59,7 @@ public class SecKillController {
 
   @PostMapping("/test")
   @LimitNumber(value = 1)
-  @AccessLimit(seconds = 1, maxCount = 20)
+  @AccessLimit(seconds = 1, maxCount = 800)
   public String killStock( @RequestParam(value = "userId") Integer userId,
                                @RequestParam(value = "stockName") String stockName)
           throws JsonProcessingException {
