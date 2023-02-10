@@ -34,6 +34,8 @@ public class ReceiveHandler {
   @Autowired OrderService orderService;
   @Autowired StockService stockService;
   @Autowired ObjectMapper objectMapper;
+  private Object object;
+
   // 监听email队列
   @RabbitListener(
       queues = RabbitMqConfig.ORDER_QUEUE,
@@ -129,13 +131,11 @@ public class ReceiveHandler {
         System.out.println("新增");
         break;
       case "DELETE":
-        System.out.println("删除数据库： "+canal.getDatabase()+" 中的 "+canal.getTable()+"表");
         List<Object> objects = objectMapper.readValue(objectMapper.writeValueAsString(canal.getData()), new TypeReference<List<Object>>() {
         });
-        for (Object object : objects) {
-          System.out.println(object);
-
-        }
+        object = objects.get(0);
+        String id = object.toString().replace("{", "").replace("}", "").split(",")[0].split("=")[1];
+        System.out.println("删除数据库： "+canal.getDatabase()+"中的"+canal.getTable()+"表里ID为："+id+"的数据");
         break;
     }
   }
